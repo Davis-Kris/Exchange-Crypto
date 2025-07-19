@@ -1,0 +1,408 @@
+# Exchange-Crypto
+
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simulasi Exchange Crypto Game</title>
+    <style>
+      /* Reset dasar */
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      #app {
+        background: #1e1e2f;
+        border-radius: 15px;
+        max-width: 700px;
+        width: 100%;
+        padding: 25px 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      label {
+        display: block;
+        margin-top: 15px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      select,
+      input[type="number"] {
+        width: 100%;
+        padding: 12px 15px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+        background: #2a2a45;
+        color: #fff;
+        transition: background 0.3s ease;
+      }
+      select:hover,
+      input[type="number"]:hover,
+      select:focus,
+      input[type="number"]:focus {
+        background: #3a3a65;
+        outline: none;
+      }
+
+      button {
+        margin-top: 25px;
+        width: 100%;
+        background: #ff5f6d;
+        background: linear-gradient(45deg, #ff5f6d, #ffc371);
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        letter-spacing: 1px;
+        transition: background 0.4s ease, transform 0.2s ease;
+      }
+      button:hover {
+        background: #ffc371;
+        color: #333;
+        transform: scale(1.05);
+      }
+      button:active {
+        transform: scale(0.97);
+      }
+
+      #balanceDisplay {
+        margin: 15px 0 25px 0;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+      }
+
+      #priceDisplay {
+        background: #2a2a45;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        font-weight: 600;
+        box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.1);
+      }
+
+      #message {
+        margin: 15px 0;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0.5px;
+        user-select: none;
+      }
+      .success {
+        background: #4caf50cc;
+        color: #e6f4ea;
+        box-shadow: 0 0 15px #4caf50cc;
+      }
+      .error {
+        background: #f44336cc;
+        color: #fcebea;
+        box-shadow: 0 0 15px #f44336cc;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      th,
+      td {
+        padding: 12px 10px;
+        text-align: center;
+        background: #2a2a45;
+        color: #ddd;
+      }
+      th {
+        background: #444469;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      tbody tr:nth-child(odd) td {
+        background: #23233a;
+      }
+
+      @media (max-width: 600px) {
+        #app {
+          padding: 15px 20px;
+        }
+        button {
+          font-size: 16px;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Simulasi Exchange Crypto Game</h1>
+
+      <div id="balanceDisplay">Saldo USD: $<span id="balance">0</span></div>
+
+      <div id="priceDisplay">Memuat harga...</div>
+
+      <label for="crypto">Pilih Crypto:</label>
+      <select id="crypto">
+        <option value="bitcoin">Bitcoin (BTC)</option>
+        <option value="ethereum">Ethereum (ETH)</option>
+        <option value="cardano">Cardano (ADA)</option>
+        <option value="dogecoin">Dogecoin (DOGE)</option>
+      </select>
+
+      <label for="action">Aksi:</label>
+      <select id="action">
+        <option value="buy">Beli</option>
+        <option value="sell">Jual</option>
+      </select>
+
+      <label for="amount">Jumlah:</label>
+      <input
+        type="number"
+        id="amount"
+        min="0"
+        step="0.000001"
+        placeholder="Masukkan jumlah crypto"
+      />
+
+      <button id="tradeBtn">Lakukan Transaksi</button>
+
+      <div id="message"></div>
+
+      <h2>Portfolio</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Crypto</th>
+            <th>Jumlah</th>
+          </tr>
+        </thead>
+        <tbody id="portfolioBody"></tbody>
+      </table>
+
+      <h2>Riwayat Transaksi</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu</th>
+            <th>Aksi</th>
+            <th>Crypto</th>
+            <th>Jumlah</th>
+            <th>Harga (USD)</th>
+            <th>Total (USD)</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      const apiUrl =
+        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,dogecoin&vs_currencies=usd";
+
+      let basePrices = {};
+      let currentPrices = {};
+
+      let balance = parseFloat(localStorage.getItem("balance")) || 10000;
+      let portfolio = JSON.parse(localStorage.getItem("portfolio")) || {
+        bitcoin: 0,
+        ethereum: 0,
+        cardano: 0,
+        dogecoin: 0,
+      };
+      let history = JSON.parse(localStorage.getItem("history")) || [];
+
+      const balanceSpan = document.getElementById("balance");
+      const portfolioBody = document.getElementById("portfolioBody");
+      const historyBody = document.getElementById("historyBody");
+      const messageDiv = document.getElementById("message");
+      const priceDisplay = document.getElementById("priceDisplay");
+
+      balanceSpan.textContent = balance.toFixed(2);
+
+      function updatePortfolioUI() {
+        portfolioBody.innerHTML = "";
+        for (const [coin, amount] of Object.entries(portfolio)) {
+          portfolioBody.innerHTML += `<tr><td>${coin}</td><td>${amount.toFixed(
+            6
+          )}</td></tr>`;
+        }
+      }
+
+      function updateHistoryUI() {
+        historyBody.innerHTML = "";
+        for (const item of history) {
+          historyBody.innerHTML += `<tr>
+        <td>${new Date(item.time).toLocaleString()}</td>
+        <td>${item.action}</td>
+        <td>${item.crypto}</td>
+        <td>${item.amount.toFixed(6)}</td>
+        <td>$${item.price.toFixed(2)}</td>
+        <td>$${item.total.toFixed(2)}</td>
+      </tr>`;
+        }
+      }
+
+      function saveData() {
+        localStorage.setItem("balance", balance);
+        localStorage.setItem("portfolio", JSON.stringify(portfolio));
+        localStorage.setItem("history", JSON.stringify(history));
+      }
+
+      async function getPrices() {
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Gagal mengambil data harga");
+        const data = await res.json();
+        return {
+          bitcoin: data.bitcoin.usd,
+          ethereum: data.ethereum.usd,
+          cardano: data.cardano.usd,
+          dogecoin: data.dogecoin.usd,
+        };
+      }
+
+      function fluctuatePrices() {
+        for (const coin in basePrices) {
+          let base = basePrices[coin];
+          const changePercent = Math.random() * 6 - 3; // ±3%
+          const newPrice = base * (1 + changePercent / 100);
+          currentPrices[coin] = newPrice;
+        }
+        updatePriceDisplay();
+      }
+
+      function updatePriceDisplay() {
+        let html = "<strong>Harga Crypto Sekarang (Simulasi):</strong><br>";
+        for (const coin in currentPrices) {
+          html += `${coin.toUpperCase()} : $${currentPrices[coin].toFixed(
+            2
+          )}<br>`;
+        }
+        priceDisplay.innerHTML = html;
+      }
+
+      async function performTrade() {
+        messageDiv.textContent = "";
+        messageDiv.className = "";
+        const crypto = document.getElementById("crypto").value;
+        const action = document.getElementById("action").value;
+        const amount = parseFloat(document.getElementById("amount").value);
+
+        if (isNaN(amount) || amount <= 0) {
+          messageDiv.textContent = "Jumlah harus lebih dari 0.";
+          messageDiv.className = "error";
+          return;
+        }
+
+        const price = currentPrices[crypto];
+        if (!price) {
+          messageDiv.textContent = "Harga crypto belum tersedia.";
+          messageDiv.className = "error";
+          return;
+        }
+
+        if (action === "buy") {
+          const cost = price * amount;
+          if (cost > balance) {
+            messageDiv.textContent = "Saldo tidak cukup untuk membeli.";
+            messageDiv.className = "error";
+            return;
+          }
+          balance -= cost;
+          portfolio[crypto] += amount;
+          messageDiv.textContent = `Berhasil membeli ${amount.toFixed(
+            6
+          )} ${crypto.toUpperCase()} seharga $${cost.toFixed(2)}.`;
+          messageDiv.className = "success";
+        } else if (action === "sell") {
+          if (portfolio[crypto] < amount) {
+            messageDiv.textContent = `Anda tidak memiliki cukup ${crypto.toUpperCase()} untuk dijual.`;
+            messageDiv.className = "error";
+            return;
+          }
+          const gain = price * amount;
+          balance += gain;
+          portfolio[crypto] -= amount;
+          messageDiv.textContent = `Berhasil menjual ${amount.toFixed(
+            6
+          )} ${crypto.toUpperCase()} dengan hasil $${gain.toFixed(2)}.`;
+          messageDiv.className = "success";
+        }
+
+        // Simpan riwayat transaksi
+        history.unshift({
+          time: Date.now(),
+          action: action === "buy" ? "Beli" : "Jual",
+          crypto: crypto.toUpperCase(),
+          amount,
+          price,
+          total: price * amount,
+        });
+
+        // Batasi riwayat maksimum 30
+        if (history.length > 30) history.pop();
+
+        balanceSpan.textContent = balance.toFixed(2);
+        updatePortfolioUI();
+        updateHistoryUI();
+        saveData();
+      }
+
+      document
+        .getElementById("tradeBtn")
+        .addEventListener("click", performTrade);
+
+      async function init() {
+        try {
+          basePrices = await getPrices();
+          // Mulai dengan harga dasar dari API
+          currentPrices = { ...basePrices };
+          updatePriceDisplay();
+
+          // Update harga tiap 10 detik dengan simulasi fluktuasi
+          setInterval(fluctuatePrices, 10000);
+
+          updatePortfolioUI();
+          updateHistoryUI();
+          balanceSpan.textContent = balance.toFixed(2);
+        } catch (e) {
+          priceDisplay.textContent = "Gagal mengambil harga crypto.";
+          console.error(e);
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
